@@ -1,0 +1,61 @@
+### Проверка классификации запросов
+
+POST http://127.0.0.1/classify
+Authorization: token 454e351314464a979ede98764308fa19
+Content-Type: application/json
+
+{
+  "text": "В подъезде дома на улице Лохматникова не работают лампочки. Прощу заменить"
+}
+
+### Проверка классификации запросов
+
+GET http://127.0.0.1/get-result?uid=097f54a6548e4a26804fb260b3bdd465
+Authorization: token 454e351314464a979ede98764308fa19
+
+
+### Отправка запроса на дообучение
+
+POST http://127.0.0.1/learn
+Authorization: token b9666c82d3d84822b0d246d6b3980469
+Content-Type: application/json
+
+{
+  "text": "В подъезде дома на улице Лохматникова не работают лампочки. Прощу заменить",
+  "id": "180"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+
+POST http://127.0.0.1/classify
+Authorization: token 454e351314464a979ede98764308fa19
+Content-Type: application/json
+
+{
+  "some": "1"
+}
+
+
+### Проверка аутентификации
+
+POST http://127.0.0.1/auth
+Content-Type: application/json
+
+{
+  "token": "454e351314464a979ede98764308fa19"
+}
+
+###

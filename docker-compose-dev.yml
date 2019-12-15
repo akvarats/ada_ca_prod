@@ -1,0 +1,121 @@
+version: "3.5"
+
+services:
+  gw:
+    container_name: ada_gw
+    build: ./gw
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - api_gate
+
+  auth:
+    container_name: ada_auth
+    build: ./auth
+    restart: always
+    volumes:
+      - ./auth/app:/app
+      - ./codebase:/codebase
+    secrets:
+      - jwt_secret_key
+      - region_tokens
+    working_dir: /app
+    command: "gunicorn --pythonpath /codebase --timeout 9999 -w 5 -b 0.0.0.0:80 wsgi:app"
+
+
+  api_gate:
+    container_name: ada_api_gate
+    build: ./api_gate
+    restart: always
+    volumes:
+      - ./api_gate/app:/app
+      - ./codebase:/codebase
+      - ada_storage:/storage
+    secrets:
+      - jwt_secret_key
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    working_dir: /app
+    command: "gunicorn --pythonpath /codebase --timeout 9999 -w 10 -b 0.0.0.0:80 wsgi:app"
+    depends_on:
+      - redis
+
+  worker_1:
+    container_name: ada_worker_1
+    build: ./worker
+    restart: always
+    volumes:
+      - ./worker/app:/app
+      - ./codebase:/codebase
+      - ./models:/models
+      - ada_storage:/storage
+    working_dir: /app
+    command:
+      "rq worker ryazyan yakutiya --url=redis://redis:6379 --path /app --path /codebase -w rq.worker.SimpleWorker"
+    depends_on:
+      - redis
+
+  worker_2:
+    container_name: ada_worker_2
+    build: ./worker
+    restart: always
+    volumes:
+      - ./worker/app:/app
+      - ./codebase:/codebase
+      - ./models:/models
+      - ada_storage:/storage
+    working_dir: /app
+    command:
+      "rq worker ryazyan.learn yakutiya.learn --url=redis://redis:6379 --path /app --path /codebase -w rq.worker.SimpleWorker"
+    depends_on:
+      - redis
+      - api_gate
+
+  warmup:
+    container_name: ada_warmup
+    build: ./warmup
+    volumes:
+      - ./warmup/scripts:/scripts
+    working_dir: /scripts
+    command: "./warmup-dev.sh"
+    depends_on:
+      - gw
+
+  recovery:
+    container_name: ada_recovery
+    build: ./recovery
+    volumes:
+      - ./recovery/app:/app
+      - ./codebase:/codebase
+    working_dir: /app
+    command:
+      "python recover_jobs.py"
+    depends_on:
+      - gw
+
+  redis:
+    image: redis:5.0-alpine
+    container_name: ada_redis
+    restart: always
+
+  rq_dashboard:
+    container_name: ada_rq_dashboard
+    build: ./rq_dashboard
+    restart: always
+    ports:
+      - 9181:9181
+    command: "rq-dashboard -b 0.0.0.0 -p 9181 --username admin --password 1 -H redis -P 6379"
+    depends_on:
+      - redis
+
+volumes:
+  ada_storage:
+    external: true
+
+secrets:
+  jwt_secret_key:
+    file: ./secrets/jwt_secret_key
+  region_tokens:
+    file: ./secrets/region_tokens
