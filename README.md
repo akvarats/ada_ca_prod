@@ -3,7 +3,7 @@
 ## Setup
 
 ```sh
-$ docker volume create storage ada_storage
+$ docker volume create ada_storage
 ```
 
 ## Run
@@ -34,6 +34,10 @@ $ make shell-yakutia
 ## Secrets
 
 Location: ./secrets
+
+Create 2 files:
+* secrets/jwt_secret_key
+* secrets/region_tokens
 
 Secret `jwt_secret_key`:
 ```
