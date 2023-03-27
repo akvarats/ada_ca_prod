@@ -2,7 +2,7 @@ flask==1.1.1
 requests==2.22.0
 gunicorn==19.9.0
 flask_jwt_extended==3.24.1
-redis==3.3.10
+redis==4.5.3
 rq==1.1.0
 pytz==2019.3
 python-dateutil==2.8.0
