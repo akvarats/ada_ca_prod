@@ -1,5 +1,5 @@
 flask==1.1.1
-requests==2.22.0
+requests==2.31.0
 gunicorn==19.9.0
 flask_jwt_extended==3.24.1
 redis==3.3.10
